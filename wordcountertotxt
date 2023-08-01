@@ -1,0 +1,40 @@
+import re
+import openpyxl
+
+def count_word_occurrences(file_path):
+    word_count = {}
+    with open(file_path, 'r') as file:
+        text = file.read()
+        sentences = re.split(r'[.!?]', text)  # Split text into sentences using punctuation marks
+        for sentence in sentences:
+            words = sentence.split()
+            for word in words:
+                if word not in word_count:
+                    word_count[word] = 0
+                word_count[word] += 1
+    return word_count
+
+file_path = r'#enter input file location'
+output_file_path = r'#enter output file location'
+
+word_occurrences = count_word_occurrences(file_path)
+
+# Create a new workbook and select the active sheet
+workbook = openpyxl.Workbook()
+sheet = workbook.active
+
+# Write headers
+sheet.cell(row=1, column=1, value='Word')
+sheet.cell(row=1, column=2, value='Count')
+
+# Write word occurrences data
+row = 2
+for word, count in word_occurrences.items():
+    sheet.cell(row=row, column=1, value=word)
+    sheet.cell(row=row, column=2, value=count)
+    row += 1
+
+# Save the workbook
+workbook.save(output_file_path)
+
+print("Word occurrences saved to: {}".format(output_file_path))
