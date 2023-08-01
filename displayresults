@@ -1,0 +1,31 @@
+mport re
+import pandas as pd
+
+
+def count_word_occurrences(file_path):
+    word_count = {}
+    with open(file_path, 'r') as file:
+        text = file.read()
+        words = re.findall(r'\b\w+\b', text)  # Find all words in the text using regex
+        for word in words:
+            if word not in word_count:
+                word_count[word] = 0
+            word_count[word] += 1
+    return word_count
+
+
+file_path = '# Replace with the actual file path'  
+
+word_occurrences = count_word_occurrences(file_path)
+
+# Convert the word occurrences dictionary to a DataFrame
+word_df = pd.DataFrame(list(word_occurrences.items()), columns=['Word', 'Occurrences'])
+
+# Sort the DataFrame by word occurrences in descending order
+word_df = word_df.sort_values(by='Occurrences', ascending=False)
+
+# Save the DataFrame to a separate Excel file
+output_file_path = 'C:/Users/mnk05/Desktop/Python Project/output_file.xlsx'  # Replace with the desired output file path
+word_df.to_excel(output_file_path, index=False)
+
+print("Word occurrences saved to: {}".format(output_file_path))
