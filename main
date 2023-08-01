@@ -1,0 +1,61 @@
+import requests
+from bs4 import BeautifulSoup
+from collections import Counter
+import time
+
+# Define the URL of the website you want to scrape
+website = 'example.com'  # Replace with the actual website URL
+
+# Define the delay in seconds (15 minutes = 900 seconds)
+delay = 1
+
+# Create a session object to persist the session and cookies
+session = requests.Session()
+
+# Define the cookies obtained from a logged-in session
+cookies = {
+    'accessAgeDisclaimerPH': '1',
+    # Add more cookies as needed, copy cookies from the browser
+}
+
+# Add the cookies to the session
+session.cookies.update(cookies)
+
+while True:
+    # Send an HTTP GET request to the website using the session
+    response = session.get(website)
+
+    # Check if the age verification button is present in the response content
+    if 'I am 18 or older - Enter' in response.text:
+        print("Age verification required. Skipping website:", website)
+        time.sleep(delay)
+        continue
+
+    # Parse the HTML content using BeautifulSoup
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Find the trending -- searches, 'trendingNowWrapper' grabs the top most viewed --
+    trending_wrapper = soup.find('ul', class_='trendingNowWrapper')
+    if trending_wrapper is None:
+        print("Unable to find trending porn searches. Skipping website:", website)
+        time.sleep(delay)
+        continue
+
+    # Extract the -- search terms
+    search_terms = [term.text for term in trending_wrapper.find_all('li')]
+
+    # Count the occurrences of each search term
+    term_counts = Counter(search_terms)
+
+    # Sort the search terms based on their counts in descending order
+    sorted_terms = sorted(term_counts.items(), key=lambda x: x[1], reverse=True)
+
+    # Display and save the most searched porn terms
+    print("Most searched -- terms:")
+    with open("search_terms.txt", "a") as file:  # Open the file in append mode
+        for term, count in sorted_terms:
+            print(f"{term}: {count}")
+            file.write(f"{term}: {count}\n")
+
+    # Delay for 15 min
+    time.sleep(delay)
